@@ -1,0 +1,264 @@
+<!--
+Digital Poster Website: "GITAMW Journey of Engineering"
+Single-file HTML (includes CSS + JS) — ready to open in browser.
+Instructions:
+1. Save this file as: Digital_Poster_Journey_of_Engineering.html
+2. Open in any modern browser (Chrome/Edge/Firefox).
+3. Replace placeholder images (./images/...) or use your own links.
+4. To publish: push to GitHub and enable GitHub Pages, or host on Netlify/Vercel.
+
+Features included:
+- Animated hero with gradient text
+- Scrolling timeline (milestones in engineering learning)
+- Scroll-triggered reveal animations (IntersectionObserver)
+- Animated counters for achievements
+- Marquee-style notifications
+- Interactive cards and modal details
+- Responsive layout (mobile-first)
+
+If you want: I can split this into separate files (css/js) or create a PPT for presentation.
+-->
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>GITAMW Journey of Engineering — Digital Poster</title>
+  <meta name="description" content="A colorful animated digital poster that showcases the Journey of Engineering." />
+  <style>
+    /* ===== Reset & Base ===== */
+    :root{
+      --bg:#0f1724;
+      --card:#0b1220;
+      --accent:#7c3aed;
+      --muted:#94a3b8;
+      --glass: rgba(255,255,255,0.04);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial;
+      background: radial-gradient(1200px 600px at 10% 10%, rgba(124,58,237,0.08), transparent),
+                  radial-gradient(900px 400px at 90% 90%, rgba(14,165,233,0.04), transparent),
+                  var(--bg);
+      color:#e6eef8;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      line-height:1.45;
+      padding-bottom:60px;
+    }
+    .container{max-width:1100px;margin:0 auto;padding:24px}
+
+    /* ===== Header ===== */
+    header{display:flex;align-items:center;justify-content:space-between;padding:14px 0}
+    .logo{display:flex;align-items:center;gap:12px}
+    .logo .dot{width:46px;height:46px;border-radius:10px;background:linear-gradient(135deg,var(--accent),#06b6d4);display:flex;align-items:center;justify-content:center;font-weight:700}
+    nav a{color:var(--muted);text-decoration:none;margin-left:18px;font-size:15px}
+
+    /* ===== Marquee ===== */
+    .marquee{background:linear-gradient(90deg, rgba(124,58,237,0.12), rgba(6,182,212,0.06));padding:8px;border-radius:10px;overflow:hidden;margin:14px 0}
+    .marquee p{white-space:nowrap;display:inline-block;animation:marq 14s linear infinite;margin:0}
+    @keyframes marq{from{transform:translateX(100%)}to{transform:translateX(-100%)}}
+
+    /* ===== Hero ===== */
+    .hero{display:grid;grid-template-columns:1fr 380px;gap:22px;align-items:center;margin-top:22px}
+    .hero-card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:28px;border-radius:14px;box-shadow:0 6px 20px rgba(2,6,23,0.6)}
+    .title{font-size:34px;font-weight:700;margin:0;background:linear-gradient(90deg,#fff, #f0f, #06b6d4);-webkit-background-clip:text;background-clip:text;color:transparent}
+    .subtitle{color:var(--muted);margin-top:8px}
+    .cta{margin-top:18px}
+    .cta button{background:transparent;border:1px solid rgba(255,255,255,0.08);padding:10px 14px;border-radius:10px;color:#fff;cursor:pointer}
+
+    /* ===== Counters ===== */
+    .counters{display:flex;gap:12px;margin-top:18px}
+    .counter{flex:1;padding:14px;background:var(--glass);border-radius:10px;text-align:center}
+    .counter .num{font-size:22px;font-weight:700}
+    .counter .lbl{color:var(--muted);font-size:13px}
+
+    /* ===== Timeline ===== */
+    .timeline{margin-top:26px}
+    .timeline .line{position:relative;padding-left:56px}
+    .milestone{position:relative;margin-bottom:30px;opacity:0;transform:translateY(18px);transition:all .6s cubic-bezier(.2,.9,.3,1)}
+    .milestone.revealed{opacity:1;transform:none}
+    .milestone .dot{width:36px;height:36px;background:linear-gradient(135deg,var(--accent),#06b6d4);border-radius:20%;position:absolute;left: -40px;top:2px;display:flex;align-items:center;justify-content:center;font-weight:700}
+    .milestone h3{margin:0 0 6px 0}
+    .milestone p{color:var(--muted);margin:0}
+
+    /* ===== Gallery ===== */
+    .gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-top:22px}
+    .photo{height:120px;border-radius:10px;background-size:cover;background-position:center;box-shadow:inset 0 0 0 1px rgba(255,255,255,0.02)}
+
+    /* ===== Modal ===== */
+    .modal{position:fixed;inset:0;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;padding:20px;visibility:hidden;opacity:0;transition:.2s}
+    .modal.show{visibility:visible;opacity:1}
+    .modal .card{background:#06121a;padding:20px;border-radius:12px;max-width:680px;width:100%}
+    .close-btn{float:right;background:transparent;border:0;color:var(--muted);font-size:20px;cursor:pointer}
+
+    /* ===== Footer ===== */
+    footer{margin-top:40px;text-align:center;color:var(--muted);font-size:14px}
+
+    /* ===== Responsive ===== */
+    @media (max-width:900px){
+      .hero{grid-template-columns:1fr}
+      .logo .dot{width:40px;height:40px}
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="logo">
+        <div class="dot">E</div>
+        <div>
+          <div style="font-weight:700">GITAMW Journey of Engineering</div>
+          <div style="font-size:12px;color:var(--muted)">Digital Poster — Engg Day</div>
+        </div>
+      </div>
+      <nav>
+        <a href="#home">Home</a>
+        <a href="#timeline">Timeline</a>
+        <a href="#gallery">Gallery</a>
+        <a href="#contact">Contact</a>
+      </nav>
+    </header>
+
+    <div class="marquee"><p>📢 Engineering Day on 15th SEP • 🌟 CREATHON 2025 🌟 - Project Exhibitions • Coding Challenge • Visit club booths after the ceremony</p></div>
+
+    <main id="home">
+      <div class="hero">
+        <div class="hero-card">
+          <h1 class="title">GITAMW Journey of Engineering</h1>
+          <p class="subtitle">From curiosity to creation — a visual timeline of milestones, skills, and projects that shape an engineering student.</p>
+
+          <div class="counters" aria-hidden>
+            <div class="counter">
+              <div class="num" data-target="50">0</div>
+              <div class="lbl">Projects</div>
+            </div>
+            <div class="counter">
+              <div class="num" data-target="120">0</div>
+              <div class="lbl">Coding Challenge</div>
+            </div>
+            <div class="counter">
+              <div class="num" data-target="300">0</div>
+              <div class="lbl">Participants</div>
+            </div>
+          </div>
+
+          <div class="cta">
+            <button id="openModal">View Highlights</button>
+          </div>
+        </div>
+
+        <aside class="hero-card" style="display:flex;flex-direction:column;gap:12px;align-items:stretch">
+          <div style="font-weight:700">Highlights</div>
+          <div style="background:linear-gradient(90deg, rgba(255,255,255,0.02), transparent);padding:12px;border-radius:10px">🏆 Best project wins</div>
+          <div style="background:linear-gradient(90deg, rgba(255,255,255,0.02), transparent);padding:12px;border-radius:10px">🛠️ Coding Challenge</div>
+          <div style="background:linear-gradient(90deg, rgba(255,255,255,0.02), transparent);padding:12px;border-radius:10px">🎓 Skill-Showcase  day</div>
+        </aside>
+      </div>
+
+      <section id="timeline" class="timeline">
+        <h2 style="margin-top:28px">Timeline — Milestones of  College</h2>
+        <div class="line">
+
+          <div class="milestone reveal">
+            <div class="dot">1</div>
+            <h3>First - Foundations</h3>
+            <p>Inauguration, Guest Talks, and Cultural Kickoff</p>
+          </div>
+
+          <div class="milestone reveal">
+            <div class="dot">2</div>
+            <h3>Second — Hands-on</h3>
+            <p>Project/Poster Exhibitions by students.</p>
+          </div>
+
+          <div class="milestone reveal">
+            <div class="dot">3</div>
+            <h3>Third  — Coding Challenges</h3>
+            <p>Technical Competitions.</p>
+          </div>
+
+          <div class="milestone reveal">
+            <div class="dot">4</div>
+            <h3>Fourth  — Awards & Celebrations</h3>
+            <p>Prize Distribution & Cultural Programs.</p>
+          </div>
+
+        </div>
+      </section>
+
+      <section id="gallery" class="gallery">
+        <h2 style="margin-top:28px">Gallery — Moments</h2>
+        <div class="photo" style="background-image:url('https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=800&q=60')"></div>
+        <div class="photo" style="background-image:url('https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=60')"></div>
+        <div class="photo" style="background-image:url('https://images.unsplash.com/photo-1581091012184-7e7a3b9c9aef?auto=format&fit=crop&w=800&q=60')"></div>
+        <div class="photo" style="background-image:url('https://images.unsplash.com/photo-1542744173-8e7e53415bb0?auto=format&fit=crop&w=800&q=60')"></div>
+      </section>
+
+    </main>
+
+    <footer id="contact">
+      <p>Contact: gitamw.ac.in• Visit our booth at Engineering Day</p>
+      <p style="margin-top:6px;color:var(--muted);font-size:13px">Made with ❤️ for first-year students — MNV.</p>
+    </footer>
+  </div>
+
+  <!-- Modal -->
+  <div id="modal" class="modal" role="dialog" aria-modal="true">
+    <div class="card">
+      <button class="close-btn" id="closeModal">✕</button>
+      <h3>Engineering Day Highlights</h3>
+      <p style="color:var(--muted)">Creathon 2025 is a flagship event of GITAMW (Autonomous), organized as part of Engineers’ Day Celebrations. It is designed to provide a platform for students to:
+Showcase Innovation through Project Exhibitions across multiple branches.
+Demonstrate Coding Skills in a competitive Hackathon-style Coding Contest.
+Collaborate & Compete with peers to turn ideas into impactful solutions.
+The event encourages creativity, teamwork, and problem-solving—core qualities of an engineer. Winners will be honored with prizes and certificates in recognition of their talent and contribution. - GITAMW (AUTONOMOUS) </p>
+      <ul style="color:var(--muted)">
+        <li>create</li>
+        <li>Compete</li>
+        <li> and win prizes!</li>
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    // ===== Reveal on scroll =====
+    const obs = new IntersectionObserver((entries)=>{
+      entries.forEach(e=>{
+        if(e.isIntersecting) e.target.classList.add('revealed');
+      });
+    },{threshold:0.15});
+    document.querySelectorAll('.milestone').forEach(el=>obs.observe(el));
+
+    // ===== Counters =====
+    const counters = document.querySelectorAll('.num');
+    const startCounters = ()=>{
+      counters.forEach(el=>{
+        const target = +el.dataset.target;
+        let cur = 0;
+        const step = Math.max(1, Math.floor(target / 60));
+        const ii = setInterval(()=>{
+          cur += step;
+          if(cur >= target){el.textContent = target; clearInterval(ii)} else el.textContent = cur;
+        },18);
+      });
+    }
+    // start counters when hero in view
+    const hero = document.querySelector('.hero-card');
+    new IntersectionObserver((entries)=>{ if(entries[0].isIntersecting) startCounters(); },{threshold:0.2}).observe(hero);
+
+    // ===== Modal =====
+    const modal = document.getElementById('modal');
+    document.getElementById('openModal').addEventListener('click',()=>modal.classList.add('show'));
+    document.getElementById('closeModal').addEventListener('click',()=>modal.classList.remove('show'));
+    modal.addEventListener('click',(e)=>{ if(e.target===modal) modal.classList.remove('show') });
+
+    // ===== Small touches =====
+    // Add 'revealed' class to initially visible milestone nodes for smoother animation
+    document.querySelectorAll('.milestone').forEach((m, idx)=>{ setTimeout(()=>m.classList.add('revealed'), 160*idx); });
+  </script>
+</body>
+</html>
