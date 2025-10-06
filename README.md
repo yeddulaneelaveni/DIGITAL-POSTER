@@ -29,4 +29,7 @@ GITAMW Journey of Engineering is an interactive and visually engaging web app th
 
 ### 🚀 Deployment
 - Netlify
-  
+
+
+
+  view live : https://68c42848087a5656b927bc01--resplendent-pithivier-be6342.netlify.app/
